@@ -3,19 +3,19 @@ const followTypeDefs = `#graphql
     _id: ID
     followingId: ID
     followerId: ID
-    createdAt: Date
-    updatedAt: Date
+    createdAt: String
+    updatedAt: String
   }
 
   type Query {
-    follows: [Follow]
+    getFollows: [Follow]
   }
 `;
 
 const followResolvers = {
-  Query: {
-    follows: () => follows,
-  },
+    Query: {
+        getFollows: () => follows,
+    },
 };
 
 module.exports = { followTypeDefs, followResolvers }
