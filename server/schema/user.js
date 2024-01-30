@@ -19,7 +19,7 @@ const userTypeDefs = `#graphql
   }
 
   input loginUser {
-    email: String!
+    username: String!
     password: String!
   }
 
@@ -63,6 +63,12 @@ const userResolvers = {
       }
       const result = await User.addUser(newUser)
       return newUser
+    },
+    login: async (_, args) => {
+      const { loginUser } = args
+      const user = await User.getUser(loginUser)
+      const access_token = jwt.sign({ _id: user._id, username: user.username })
+      return { access_token }
     }
   }
 };
