@@ -71,6 +71,8 @@ const userResolvers = {
           },
         })
       }
+      const result = await User.addUser(newUser)
+      return newUser
     }
   }
 };
