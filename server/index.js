@@ -4,7 +4,6 @@ const { userTypeDefs, userResolvers } = require('./schema/user')
 const { postsTypeDefs, postsResolvers } = require('./schema/posts')
 const { followTypeDefs, followResolvers } = require('./schema/follow')
 
-
 const server = new ApolloServer({
   typeDefs: [userTypeDefs, postsTypeDefs, followTypeDefs],
   resolvers: [userResolvers, postsResolvers, followResolvers]

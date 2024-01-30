@@ -1,18 +1,4 @@
-const users = [{
-  _id: "1",
-  name: "putu",
-  username: "pututampan",
-  email: "putu@mail.com",
-  password: "putu"
-},
-{
-  _id: "2",
-  name: "putu2",
-  username: "putu2tampan",
-  email: "putu2@mail.com",
-  password: "putu2"
-}
-]
+const User = require('../models/User')
 
 const userTypeDefs = `#graphql
   type User {
@@ -23,6 +9,11 @@ const userTypeDefs = `#graphql
     password: String!
   }
 
+  type Query {
+    getAllUsers: [User]
+    getOneUser(id: ID!): User
+  }
+
   type Mutation {
     register(name: String, username: String!, email: String!, password: String!): User,
     login(email: String!, password: String!): User
@@ -30,6 +21,17 @@ const userTypeDefs = `#graphql
 `;
 
 const userResolvers = {
+  Query: {
+    getAllUsers: async () => {
+      const users = await User.getUsers()
+      return users
+    },
+    getOneUser: async (_, args) => {
+      // console.log(args, '<<< ini args');
+      const user = await User.getUserById(args.id)
+      return user
+    }
+  },
   Mutation: {
     register: (_, args, contextValue) => {
       const { name, username, email, password } = args
