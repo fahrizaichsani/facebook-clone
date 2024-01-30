@@ -11,11 +11,6 @@ const userTypeDefs = `#graphql
     password: String!
   }
 
-  type Query {
-    getAllUsers: [User]
-    getOneUser(id: ID!): User
-  }
-
   input newUser {
     name: String
     username: String! 
@@ -23,23 +18,18 @@ const userTypeDefs = `#graphql
     password: String!
   }
 
+  input loginUser {
+    email: String!
+    password: String!
+  }
+
   type Mutation {
     register(newUser: newUser): User,
-    login(email: String!, password: String!): User
+    login(loginUser: loginUser): User
   }
 `;
 
 const userResolvers = {
-  Query: {
-    getAllUsers: async () => {
-      const users = await User.getUsers()
-      return users
-    },
-    getOneUser: async (_, args) => {
-      const user = await User.getUserById(args.id)
-      return user
-    }
-  },
   Mutation: {
     register: async (_, args) => {
       const { newUser } = args
