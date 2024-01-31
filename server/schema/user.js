@@ -28,12 +28,9 @@ const userTypeDefs = `#graphql
     password: String!
   }
 
-  input search {
-    input: String
-  }
-
   type Query {
-    searchUser(search: search): [User]
+    searchUser(input: String): [User],
+    getUser(_id: ID): User
   }
 
   type Mutation {
@@ -44,9 +41,15 @@ const userTypeDefs = `#graphql
 
 const userResolvers = {
   Query: {
-    searchUser: async (_, args) => {
-      const { search } = args
-      const user = await User.getUserByUsernameAndName(search)
+    searchUser: async (_, args, contextValue) => {
+      const auth = await contextValue.authentication()
+      const { input } = args
+      const user = await User.getUserByUsernameAndName(input)
+      return user
+    },
+    getUser: async (_, args) => {
+      const {_id} = args
+      const user = await User.getUserById(_id)
       return user
     }
   },

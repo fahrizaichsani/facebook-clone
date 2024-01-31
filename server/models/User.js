@@ -1,6 +1,7 @@
 const { database } = require("../config/mongoDb");
 const { GraphQLError } = require('graphql');
 const { hashPass, comparePass } = require("../helpers/bcrypt");
+const { ObjectId } = require('mongodb')
 
 class User {
     static async addUser(newUser) {
@@ -41,12 +42,19 @@ class User {
 
     static async getUserByUsernameAndName(search) {
         const userCollection = database.collection("users")
-        console.log(search, "INII SEARCH");
-        const findUser = await userCollection.find({ $or: [{ name: {$regex: search.input, $options: 'i',} }, { username: {$regex: search.input, $options: 'i',} }] }).toArray()
+        const findUser = await userCollection.find({ $or: [{ name: {$regex: search, $options: 'i',} }, { username: {$regex: search, $options: 'i',} }] }).toArray()
         if (!findUser) {
             throw new GraphQLError('User not found')
         }
         return findUser
+    }
+
+    static async getUserById(id) {
+        const userCollection = database.collection("users")
+        const users = await userCollection.findOne({
+            _id: new ObjectId(id)
+        })
+        return users
     }
 }
 
