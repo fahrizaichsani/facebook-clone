@@ -32,7 +32,6 @@ const followResolvers = {
         updatedAt: new Date
       }
       const follow = await Follow.followUser(followInput)
-      // perlukah validasi agar tidak bisa difollow 2 kali?
       return followInput
     },
   },

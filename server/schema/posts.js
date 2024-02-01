@@ -3,10 +3,10 @@ const Post = require("../models/Post");
 const postsTypeDefs = `#graphql
   type Post {
     _id: ID
-    content: String
+    content: String!
     tags: [String]
     imgUrl: String
-    authorId: ID
+    authorId: ID!
     comments: [Comments]
     likes: [Likes]
     createdAt: String
@@ -38,6 +38,8 @@ const postsTypeDefs = `#graphql
 
   type Mutation {
     addNewPost(addPost: addPost): Post
+    addLike(_id: ID): Likes
+    addComment(_id: ID, content: String): Comments
   }
 `;
 
@@ -62,11 +64,33 @@ const postsResolvers = {
       const input = {
         ...addPost,
         authorId: auth._id,
-        createdAt: new Date,
-        updatedAt: new Date
+        comments: [],
+        likes: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
       const result = await Post.addPost(input)
       return input
+    },
+    addLike: async (_, args, contextValue) => {
+      const auth = await contextValue.authentication()
+      if (!auth) {
+        throw new GraphQLError("Unauthorized")
+      }
+      const {_id} = args
+      
+      const result = await Post.likePost(_id, auth.username)
+      return result
+    },
+    addComment: async(_,args, contextValue) => {
+      const auth = await contextValue.authentication()
+      if (!auth) {
+        throw new GraphQLError("Unauthorized")
+      }
+      const {_id, content} = args
+
+      const result = await Post.commentPost(_id, content, auth.username)
+      return result
     }
   }
 };
