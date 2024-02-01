@@ -42,7 +42,7 @@ class User {
 
     static async getUserByUsernameAndName(search) {
         const userCollection = database.collection("users")
-        const findUser = await userCollection.find({ $or: [{ name: {$regex: search, $options: 'i',} }, { username: {$regex: search, $options: 'i',} }] }).toArray()
+        const findUser = await userCollection.find({ $or: [{ name: { $regex: search, $options: 'i', } }, { username: { $regex: search, $options: 'i', } }] }).toArray()
         if (!findUser) {
             throw new GraphQLError('User not found')
         }
@@ -51,9 +51,51 @@ class User {
 
     static async getUserById(id) {
         const userCollection = database.collection("users")
-        const users = await userCollection.findOne({
-            _id: new ObjectId(id)
-        })
+        const [users] = await userCollection.aggregate([{
+            $match: {
+                _id: new ObjectId(id)
+            },
+        }, {
+            $lookup: {
+                //    from: <collection to join>,
+                //    localField: <field from the input documents>,
+                //    foreignField: <field from the documents of the "from" collection>,
+                //    as: <output array field></output>
+                from: "follows",
+                localField: "_id",
+                foreignField: "followerId",
+                as: "Followings"
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "Followings.followingId",
+                foreignField: "_id",
+                as: "DataFollowing"
+            }
+        }, {
+            $lookup: {
+                from: "follows",
+                localField: "_id",
+                foreignField: "followingId",
+                as: "Followers"
+            }
+        }, {
+            $lookup: {
+                from: "users",
+                localField: "Followers.followerId",
+                foreignField: "_id",
+                as: "DataFollower"
+            }
+        }, {
+            $project: {
+                "DataFollowing.password": 0,
+                "DataFollower.password": 0,
+                password: 0
+            }
+        }]).toArray()
+        console.log(users);
         return users
     }
 }

@@ -1,5 +1,6 @@
 const { GraphQLError } = require("graphql");
 const Follow = require("../models/Follow");
+const { ObjectId } = require("mongodb");
 
 const followTypeDefs = `#graphql
   type Follow {
@@ -22,6 +23,8 @@ const followResolvers = {
       if (!auth) {
         throw new GraphQLError("Unauthorized")
       }
+
+      args.followingId = new ObjectId(args.followingId)
       const followInput = {
         followingId: args.followingId,
         followerId: auth._id,

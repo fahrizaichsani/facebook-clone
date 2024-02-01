@@ -28,9 +28,32 @@ const userTypeDefs = `#graphql
     password: String!
   }
 
+  type DataFollowing {
+    _id: ID
+    name: String
+    username: String
+    email: String
+  }
+
+  type DataFollower {
+    _id: ID
+    name: String
+    username: String
+    email: String
+  }
+
+  type getUser {
+    _id: ID
+    name: String
+    username: String!
+    email: String!
+    DataFollowing: [DataFollowing]
+    DataFollower: [DataFollower]
+  }
+
   type Query {
     searchUser(input: String): [User],
-    getUser(_id: ID): User
+    getUser(_id: ID): getUser
   }
 
   type Mutation {
