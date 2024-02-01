@@ -73,6 +73,9 @@ const userResolvers = {
     getUser: async (_, args) => {
       const {_id} = args
       const user = await User.getUserById(_id)
+      if (!user) {
+        throw new GraphQLError("Data not found")
+      }
       return user
     }
   },

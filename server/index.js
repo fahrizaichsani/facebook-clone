@@ -19,7 +19,15 @@ startStandaloneServer(server, {
   context: async ({ req, res }) => {
     return {
       authentication: async () => {
-        const token = req.headers.authorization
+        const authorization = req.headers.authorization
+        if (!authorization) {
+          throw new GraphQLError('Unauthorized')
+        }
+
+        const [type, token] = authorization.split(' ')
+        if (type !== 'Bearer') {
+          throw new GraphQLError('Unauthorized')
+        }
         if (!token) {
           throw new GraphQLError('Unauthorized')
         }

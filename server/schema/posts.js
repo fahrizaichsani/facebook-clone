@@ -1,10 +1,12 @@
+const Post = require("../models/Post");
+
 const postsTypeDefs = `#graphql
-  type Posts {
+  type Post {
     _id: ID
-    content: String!
+    content: String
     tags: [String]
     imgUrl: String
-    authorId: ID!
+    authorId: ID
     comments: [Comments]
     likes: [Likes]
     createdAt: String
@@ -24,15 +26,49 @@ const postsTypeDefs = `#graphql
     updatedAt: String
   }
 
+  input addPost {
+    content: String!
+    tags: [String]
+    imgUrl: String
+  }
+
   type Query {
-    posts: [Posts]
+    getPosts: [Post]
+  }
+
+  type Mutation {
+    addNewPost(addPost: addPost): Post
   }
 `;
 
 const postsResolvers = {
   Query: {
-    posts: () => posts,
+    getPosts: async (_, args, contextValue) => {
+      const auth = await contextValue.authentication()
+      if (!auth) {
+        throw new GraphQLError("Unauthorized")
+      }
+      const result = await Post.getPosts()
+      return result
+    }
   },
+  Mutation: {
+    addNewPost: async (_, args, contextValue) => {
+      const auth = await contextValue.authentication()
+      if (!auth) {
+        throw new GraphQLError("Unauthorized")
+      }
+      const { addPost } = args
+      const input = {
+        ...addPost,
+        authorId: auth._id,
+        createdAt: new Date,
+        updatedAt: new Date
+      }
+      const result = await Post.addPost(input)
+      return input
+    }
+  }
 };
 
 module.exports = { postsTypeDefs, postsResolvers }

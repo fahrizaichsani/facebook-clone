@@ -57,10 +57,6 @@ class User {
             },
         }, {
             $lookup: {
-                //    from: <collection to join>,
-                //    localField: <field from the input documents>,
-                //    foreignField: <field from the documents of the "from" collection>,
-                //    as: <output array field></output>
                 from: "follows",
                 localField: "_id",
                 foreignField: "followerId",
@@ -95,7 +91,10 @@ class User {
                 password: 0
             }
         }]).toArray()
-        console.log(users);
+
+        if (!users) {
+            throw new GraphQLError("Data not found")
+        }
         return users
     }
 }
