@@ -34,6 +34,7 @@ const postsTypeDefs = `#graphql
 
   type Query {
     getPosts: [Post]
+    getPostById(_id: ID): Post
   }
 
   type Mutation {
@@ -51,6 +52,16 @@ const postsResolvers = {
         throw new GraphQLError("Unauthorized")
       }
       const result = await Post.getPosts()
+      return result
+    },
+    getPostById: async (_, args, contextValue) => {
+      const auth = await contextValue.authentication()
+      if (!auth) {
+        throw new GraphQLError("Unauthorized")
+      }
+      const {_id} = args
+      const result = await Post.getPostById(_id)
+      console.log(result);
       return result
     }
   },

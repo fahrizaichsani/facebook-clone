@@ -64,6 +64,30 @@ class Post {
             updatedAt: new Date()
         }
     }
+
+    static async getPostById(_id) {
+        const postCollection = database.collection("posts")
+        const [result] = await postCollection.aggregate([{
+            $match: {
+                _id: new ObjectId(_id)
+            }
+        }, {
+            $lookup: {
+                from: 'users',
+                localField: 'authorId',
+                foreignField: '_id',
+                as: 'Author'
+            }
+        }, {
+            $project: {
+                "Author.password": 0
+            }
+        }]).toArray()
+        if (!result) {
+            throw new GraphQLError("Data not found")
+        }
+        return result
+    }
 }
 
 module.exports = Post
