@@ -1,8 +1,11 @@
+import { useNavigation } from '@react-navigation/native';
 import React from 'react'
-import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, TouchableOpacity } from 'react-native';
 import Ionic from "react-native-vector-icons/Ionicons";
 
 export default function LoginScreen() {
+const navigation = useNavigation()
+
     return (
         <>
             <SafeAreaView style={styles.container}>
@@ -37,11 +40,11 @@ export default function LoginScreen() {
                             or
                         </Text>
                     </View>
-                    <View style={styles.boxChildNine}>
+                    <TouchableOpacity onPress={() => navigation.navigate("Register")} style={styles.boxChildNine}>
                         <Text style={styles.textFour}>
                             Create new account
                         </Text>
-                    </View>
+                    </TouchableOpacity>
                     <View style={styles.boxChildTen}>
 
                     </View>

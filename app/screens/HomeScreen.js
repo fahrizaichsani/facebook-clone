@@ -1,10 +1,49 @@
 import React from 'react'
-import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, FlatList, TouchableOpacity } from 'react-native';
 import Ionic from "react-native-vector-icons/Ionicons";
+import { useNavigation } from '@react-navigation/native';
+
+const DATA = [
+  {
+    _id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+    content: "Et eu ullamco ex ullamco. Irure est mollit Lorem ipsum nisi cupidatat qui in aute labore. Tempor adipisicing et dolore exercitation est ipsum ullamco exercitation do quis irure aliquip reprehenderit ea. Deserunt aliquip nostrud ea exercitation ex deserunt nulla esse consectetur irure mollit occaecat sunt. Voluptate nulla officia non est sit do pariatur eiusmod aliqua voluptate deserunt magna proident occaecat. Magna deserunt ullamco cupidatat anim enim amet velit laborum consectetur dolore. Nulla magna velit ullamco labore.Et eu ullamco ex ullamco. Irure est mollit Lorem ipsum nisi cupidatat qui in aute labore. Tempor adipisicing et dolore exercitation est ipsum ullamco exercitation do quis irure aliquip reprehenderit ea. Deserunt aliquip nostrud ea exercitation ex deserunt nulla esse consectetur irure mollit occaecat sunt. Voluptate nulla officia non est sit do pariatur eiusmod aliqua voluptate deserunt magna proident occaecat. Magna deserunt ullamco cupidatat anim enim amet velit laborum consectetur dolore. Nulla magna velit ullamco labore.",
+    tags: ['tags', 'tags', 'tags'],
+    imgUrl: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
+    authorId: "65b9cc7cfdc6e93339efa1b1",
+    comments: ['In sint occaecat non sunt nulla reprehenderit culpa consequat voluptate ad.', 'Labore qui fugiat eiusmod fugiat.'],
+    likes: [{
+      username: 'Yoda'
+    }]
+  },
+  {
+    _id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+    content: "Et eu ullamco ex ullamco. Irure est mollit Lorem ipsum nisi cupidatat qui in aute labore. Tempor adipisicing et dolore exercitation est ipsum ullamco exercitation do quis irure aliquip reprehenderit ea. Deserunt aliquip nostrud ea exercitation ex deserunt nulla esse consectetur irure mollit occaecat sunt. Voluptate nulla officia non est sit do pariatur eiusmod aliqua voluptate deserunt magna proident occaecat. Magna deserunt ullamco cupidatat anim enim amet velit laborum consectetur dolore. Nulla magna velit ullamco labore.",
+    tags: ['tags', 'tags', 'tags'],
+    imgUrl: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
+    authorId: "65b9cc7cfdc6e93339efa1b1",
+    comments: ['In sint occaecat non sunt nulla reprehenderit culpa consequat voluptate ad.', 'Labore qui fugiat eiusmod fugiat.'],
+    likes: [{
+      username: 'Yoda'
+    }]
+  },
+  {
+    _id: '58694a0f-3da1-471f-bd96-145571e29d72',
+    content: "Et eu ullamco ex ullamco. Irure est mollit Lorem ipsum nisi cupidatat qui in aute labore. Tempor adipisicing et dolore exercitation est ipsum ullamco exercitation do quis irure aliquip reprehenderit ea. Deserunt aliquip nostrud ea exercitation ex deserunt nulla esse consectetur irure mollit occaecat sunt. Voluptate nulla officia non est sit do pariatur eiusmod aliqua voluptate deserunt magna proident occaecat. Magna deserunt ullamco cupidatat anim enim amet velit laborum consectetur dolore. Nulla magna velit ullamco labore.",
+    tags: ['tags', 'tags', 'tags'],
+    imgUrl: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
+    authorId: "65b9cc7cfdc6e93339efa1b1",
+    comments: ['In sint occaecat non sunt nulla reprehenderit culpa consequat voluptate ad.', 'Labore qui fugiat eiusmod fugiat.'],
+    likes: [{
+      username: 'Yoda'
+    }]
+  },
+];
+
+const windowHeight = Dimensions.get('window').height;
+const windowWidth = Dimensions.get('window').width;
 
 export default function HomeScreen() {
-  const windowWidth = Dimensions.get('window').width;
-  const windowHeight = Dimensions.get('window').height;
+  const navigation = useNavigation()
   return (
     <>
       <SafeAreaView style={styles.container}>
@@ -47,7 +86,7 @@ export default function HomeScreen() {
             <Ionic name="notifications-outline" style={styles.icon}></Ionic>
           </View>
           <View style={styles.boxTwoChildSix}>
-            <Ionic name="reorder-three-outline" style={styles.icon}></Ionic>
+            <Ionic name="person-outline" style={styles.icon}></Ionic>
           </View>
         </View>
         {/* navigation */}
@@ -55,7 +94,7 @@ export default function HomeScreen() {
 
 
         {/* add-post */}
-        <View style={styles.boxThree}>
+        <TouchableOpacity onPress={() => navigation.navigate("AddPost")} style={styles.boxThree}>
           <View style={styles.boxThreeChildOne}>
             <Ionic name="person-circle-outline" style={styles.iconPerson}></Ionic>
           </View>
@@ -67,61 +106,68 @@ export default function HomeScreen() {
           <View style={styles.boxThreeChildThree}>
             <Ionic name="images-outline" style={styles.icon}></Ionic>
           </View>
-        </View>
+        </TouchableOpacity>
         {/* add-post */}
 
 
         {/* post */}
         <View style={styles.boxFive}>
-          <View style={[styles.boxFiveChildOne, { width: windowWidth, height: "100%" }]}>
-            <View style={styles.boxFiveGrandChildOne}>
-              <View style={styles.boxFiveGreatGrandsonOne}>
-                <Image
-                  style={styles.tinyLogo}
-                  source={{
-                    uri: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
-                  }}
-                />
+          <View style={[styles.boxFiveChildOne, { width: windowWidth }]}>
+            <FlatList data={DATA} keyExtractor={(item) => { item._id }} renderItem={({ item }) => (
+              <View style={{
+                width: windowWidth,
+              }}>
+                <View style={styles.boxFiveGrandChildOne}>
+                  <View style={styles.boxFiveGreatGrandsonOne}>
+                    <Image
+                      style={styles.tinyLogo}
+                      source={{
+                        uri: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
+                      }}
+                    />
+                  </View>
+                  <View style={styles.boxFiveGreatGrandsonTwo}>
+                    <Text style={styles.textThree}>
+                      Yoda GreenBoy
+                    </Text>
+                  </View>
+                  <View style={styles.boxFiveGreatGrandsonThree}>
+                    <Ionic name="ellipsis-horizontal-outline" style={styles.iconEllipsis}></Ionic>
+                  </View>
+                  <View style={styles.boxFiveGreatGrandsonFour}>
+                    <Ionic name="close-outline" style={styles.iconClose}></Ionic>
+                  </View>
+                </View>
+                <View style={styles.boxFiveGrandChildTwo}>
+                  <Text style={styles.textContent}>
+                    {item.content}
+                  </Text>
+                </View>
+                <View style={styles.boxFiveGrandChildThree}>
+                  <Image
+                    style={[styles.image]}
+                    source={{
+                      uri: item.imgUrl
+                    }}
+                  />
+                </View>
+                <View style={styles.boxFiveGrandChildFour}>
+                  <View style={styles.boxFiveGreatGrandsonFive}>
+                    <Ionic name="heart-outline" style={styles.icon}></Ionic>
+                  </View>
+                  <View style={styles.boxFiveGreatGrandsonSix}>
+                    <Text>10</Text>
+                  </View>
+                  <View style={styles.boxFiveGreatGrandsonSeven}>
+                    <Text>4 comments</Text>
+                  </View>
+                  <View style={styles.boxFiveGreatGrandsonEight}>
+                    <Text>3 shares</Text>
+                  </View>
+                </View>
               </View>
-              <View style={styles.boxFiveGreatGrandsonTwo}>
-                <Text style={styles.textThree}>
-                  Yoda GreenBoy
-                </Text>
-              </View>
-              <View style={styles.boxFiveGreatGrandsonThree}>
-                <Ionic name="ellipsis-horizontal-outline" style={styles.iconEllipsis}></Ionic>
-              </View>
-              <View style={styles.boxFiveGreatGrandsonFour}>
-                <Ionic name="close-outline" style={styles.iconClose}></Ionic>
-              </View>
-            </View>
-            <View style={styles.boxFiveGrandChildTwo}>
-              <Text style={styles.textContent}>
-                Aliquip incididunt culpa proident nisi eiusmod. Cillum aute officia mollit elit enim tempor occaecat sit reprehenderit. Aute nostrud nostrud sit id pariatur mollit nulla ad et et magna et esse et. Ipsum sint nisi ea labore voluptate laborum consectetur commodo ipsum. Eiusmod id minim aute ut. Officia ullamco amet exercitation ullamco.
-              </Text>
-            </View>
-            <View style={styles.boxFiveGrandChildThree}>
-              <Image
-                style={styles.image}
-                source={{
-                  uri: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
-                }}
-              />
-            </View>
-            <View style={styles.boxFiveGrandChildFour}>
-              <View style={styles.boxFiveGreatGrandsonFive}>
-                <Ionic name="heart-outline" style={styles.icon}></Ionic>
-              </View>
-              <View style={styles.boxFiveGreatGrandsonSix}>
-                <Text>10</Text>
-              </View>
-              <View style={styles.boxFiveGreatGrandsonSeven}>
-                <Text>4 comments</Text>
-              </View>
-              <View style={styles.boxFiveGreatGrandsonEight}>
-                <Text>3 shares</Text>
-              </View>
-            </View>
+            )}>
+            </FlatList>
           </View>
         </View>
         {/* post */}
@@ -230,6 +276,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
     flexDirection: 'row',
+    borderBottomWidth: 2,
+    borderBottomColor: '#ececec',
     padding: 8,
     gap: 8
   },
@@ -268,19 +316,19 @@ const styles = StyleSheet.create({
   //post
   boxFive: {
     flex: 12,
-    backgroundColor: '#d5d5d5'
+    backgroundColor: '#fff'
   },
   boxFiveChildOne: {
-    backgroundColor: '#ffffff',
-    marginTop: 10,
+    backgroundColor: '#ffffff'
   },
 
 
   //postheader
   boxFiveGrandChildOne: {
     flex: 4,
-    backgroundColor: '#637A9F',
-    flexDirection: 'row'
+    backgroundColor: '#ffffff',
+    flexDirection: 'row',
+    padding: 4
   },
   boxFiveGreatGrandsonOne: {
     flex: 2,
@@ -290,8 +338,8 @@ const styles = StyleSheet.create({
     paddingLeft: 8
   },
   tinyLogo: {
-    width: 70,
-    height: 70,
+    width: windowWidth/ 7,
+    height: windowHeight / 15,
     borderRadius: 100
   },
   boxFiveGreatGrandsonTwo: {
@@ -327,7 +375,6 @@ const styles = StyleSheet.create({
 
   //content
   boxFiveGrandChildTwo: {
-    flex: 5,
     backgroundColor: '#ffffff',
     padding: 8
   },
@@ -336,17 +383,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   boxFiveGrandChildThree: {
-    flex: 16,
+    // flex: 2,
     backgroundColor: '#ffffff',
     borderBottomWidth: 2,
     borderBottomColor: '#ececec',
   },
   image: {
     width: '100%',
-    height: '100%'
+    height: windowHeight / 3
   },
   boxFiveGrandChildFour: {
-    flex: 3,
+    // flex: 3,r
     backgroundColor: '#ffffff',
     flexDirection: 'row'
   },

@@ -1,14 +1,17 @@
 import React from 'react'
 import { SafeAreaView, StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
 import Ionic from "react-native-vector-icons/Ionicons";
+import { useNavigation } from '@react-navigation/native';
 
 export default function AddPostScreen() {
     const [text, onChangeText] = React.useState('');
+    const navigation = useNavigation()
+
     return (
         <>
             <SafeAreaView style={styles.container}>
                 <View style={styles.boxOne}>
-                    <TouchableOpacity style={styles.boxOneChildOne}>
+                    <TouchableOpacity onPress={() => navigation.navigate("Home")} style={styles.boxOneChildOne}>
                         <Ionic name="arrow-back-outline" style={styles.icon}></Ionic>
                     </TouchableOpacity>
                     <View style={styles.boxOneChildTwo}>
