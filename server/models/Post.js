@@ -11,7 +11,24 @@ class Post {
 
     static async getPosts() {
         const postCollection = database.collection("posts")
-        const result = await postCollection.find().toArray()
+        const result = await postCollection.aggregate([{
+            $sort: {
+                createdAt: -1
+            }
+        }, {
+            $lookup: {
+                from: 'users',
+                localField: 'authorId',
+                foreignField: '_id',
+                as: 'Author'
+            }
+        }, {
+            $set: { Author: { $first: '$Author' } }
+        },{
+            $project: {
+                "Author.password": 0
+            }
+        }]).toArray()
         return result
     }
 

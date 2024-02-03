@@ -13,6 +13,26 @@ const postsTypeDefs = `#graphql
     updatedAt: String
   }
 
+  type getPost {
+    _id: ID
+    content: String!
+    tags: [String]
+    imgUrl: String
+    authorId: ID!
+    comments: [Comments]
+    likes: [Likes]
+    createdAt: String
+    updatedAt: String
+    Author: Author
+  }
+
+  type Author {
+    _id: ID
+    name: String
+    username: String
+    email: String
+  }
+
   type Comments {
     content: String!
     username: String!
@@ -33,7 +53,7 @@ const postsTypeDefs = `#graphql
   }
 
   type Query {
-    getPosts: [Post]
+    getPosts: [getPost]
     getPostById(_id: ID): Post
   }
 
@@ -47,10 +67,8 @@ const postsTypeDefs = `#graphql
 const postsResolvers = {
   Query: {
     getPosts: async (_, args, contextValue) => {
-      const auth = await contextValue.authentication()
-      if (!auth) {
-        throw new GraphQLError("Unauthorized")
-      }
+      // const auth = await contextValue.authentication()
+      // if 
       const result = await Post.getPosts()
       return result
     },

@@ -70,7 +70,8 @@ const userResolvers = {
       const user = await User.getUserByUsernameAndName(input)
       return user
     },
-    getUser: async (_, args) => {
+    getUser: async (_, args, contextValue) => {
+      const auth = await contextValue.authentication()
       const {_id} = args
       const user = await User.getUserById(_id)
       if (!user) {
@@ -116,6 +117,9 @@ const userResolvers = {
     login: async (_, args) => {
       const { loginUser } = args
       const user = await User.getUser(loginUser)
+      if(!user){
+        throw new GraphQLError('Invalid username or password')
+      }
       const access_token = signToken({ _id: user._id, username: loginUser.username })
       return { access_token }
     }
