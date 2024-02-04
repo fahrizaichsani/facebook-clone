@@ -1,10 +1,33 @@
-import React from 'react'
-import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react'
+import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionic from "react-native-vector-icons/Ionicons";
+import { gql, useMutation } from '@apollo/client';
+import { AuthContext } from '../contexts/authContext';
+
+const REGISTER = gql`
+mutation Register($newUser: newUser) {
+  register(newUser: $newUser) {
+    _id
+    name
+    username
+    email
+  }
+}
+`
 
 export default function RegisterScreen() {
     const navigation = useNavigation()
+    const [createUser, { data, loading, error }] = useMutation(REGISTER, {
+        onCompleted: async (data) => {
+            console.log(data, "INII DATAAA");
+            navigation.navigate("Login")
+        }
+    });
+    const [email, setEmail] = React.useState('');
+    const [name, setName] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const [username, setUsername] = React.useState('');
 
     return (
         <>
@@ -20,31 +43,45 @@ export default function RegisterScreen() {
                         </Text>
                     </View>
                     <View style={styles.boxChildThree}>
-                        <View style={styles.boxGrandChildOne}>
-
-                        </View>
+                        <TextInput style={styles.boxGrandChildOne} onChangeText={setEmail}
+                            value={email}
+                            placeholder="email"
+                            autoCapitalize='none'
+                            >
+                        </TextInput>
                     </View>
                     <View style={styles.boxChildFour}>
-                        <View style={styles.boxGrandChildTwo}>
+                        <TextInput style={styles.boxGrandChildTwo} onChangeText={setName}
+                            value={name}
+                            placeholder="name">
 
-                        </View>
+                        </TextInput>
                     </View>
                     <View style={styles.boxChildFive}>
-                        <View style={styles.boxGrandChildThree}>
-
-                        </View>
+                        <TextInput style={styles.boxGrandChildThree} onChangeText={setPassword}
+                            value={password}
+                            secureTextEntry
+                            placeholder="password">
+                        </TextInput>
                     </View>
                     <View style={styles.boxChildSix}>
-                        <View style={styles.boxGrandChildFour}>
-
-                        </View>
+                        <TextInput style={styles.boxGrandChildFour} onChangeText={setUsername}
+                            value={username}
+                            placeholder="username">
+                        </TextInput>
                     </View>
                     <View style={styles.boxChildSeven}>
-                        <View style={styles.boxGrandChildFive}>
-                            <Text style={styles.textTwo}>
+                        <TouchableOpacity style={styles.boxGrandChildFive} onPress={() => {
+                            createUser({
+                                variables: {
+                                    newUser: { email, name, password, username }
+                                }
+                            })
+                        }}>
+                            <Text style={styles.textTwo} >
                                 REGISTER
                             </Text>
-                        </View>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.boxChildEight}>
                         <Text style={styles.textThree}>
@@ -105,6 +142,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 3,
         borderColor: '#cbcbcd',
+        fontSize: 25,
+        fontFamily: 'Cochin',
+        paddingLeft: 12,
     },
     boxChildFour: {
         flex: 1,
@@ -118,6 +158,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 3,
         borderColor: '#cbcbcd',
+        fontSize: 25,
+        fontFamily: 'Cochin',
+        paddingLeft: 12,
     },
     boxChildFive: {
         flex: 1,
@@ -131,6 +174,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 3,
         borderColor: '#cbcbcd',
+        fontSize: 25,
+        fontFamily: 'Cochin',
+        paddingLeft: 12,
     },
     boxChildSix: {
         flex: 1,
@@ -144,6 +190,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 3,
         borderColor: '#cbcbcd',
+        fontSize: 25,
+        fontFamily: 'Cochin',
+        paddingLeft: 12,
     },
     boxChildSeven: {
         flex: 1,

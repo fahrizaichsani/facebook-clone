@@ -54,7 +54,7 @@ const postsTypeDefs = `#graphql
 
   type Query {
     getPosts: [getPost]
-    getPostById(_id: ID): Post
+    getPostById(_id: ID): getPost
   }
 
   type Mutation {
@@ -67,8 +67,10 @@ const postsTypeDefs = `#graphql
 const postsResolvers = {
   Query: {
     getPosts: async (_, args, contextValue) => {
-      // const auth = await contextValue.authentication()
-      // if 
+      const auth = await contextValue.authentication()
+      if (!auth) {
+        throw new GraphQLError("Unauthorized")
+      }
       const result = await Post.getPosts()
       return result
     },
@@ -79,7 +81,6 @@ const postsResolvers = {
       }
       const {_id} = args
       const result = await Post.getPostById(_id)
-      console.log(result);
       return result
     }
   },

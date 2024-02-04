@@ -1,48 +1,52 @@
-import React from 'react'
-import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, FlatList, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react'
+import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Ionic from "react-native-vector-icons/Ionicons";
 import { useNavigation } from '@react-navigation/native';
+import { gql, useQuery } from '@apollo/client';
+import { AuthContext } from '../contexts/authContext';
+import * as SecureStore from 'expo-secure-store';
 
-const DATA = [
-  {
-    _id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    content: "Et eu ullamco ex ullamco. Irure est mollit Lorem ipsum nisi cupidatat qui in aute labore. Tempor adipisicing et dolore exercitation est ipsum ullamco exercitation do quis irure aliquip reprehenderit ea. Deserunt aliquip nostrud ea exercitation ex deserunt nulla esse consectetur irure mollit occaecat sunt. Voluptate nulla officia non est sit do pariatur eiusmod aliqua voluptate deserunt magna proident occaecat. Magna deserunt ullamco cupidatat anim enim amet velit laborum consectetur dolore. Nulla magna velit ullamco labore.Et eu ullamco ex ullamco. Irure est mollit Lorem ipsum nisi cupidatat qui in aute labore. Tempor adipisicing et dolore exercitation est ipsum ullamco exercitation do quis irure aliquip reprehenderit ea. Deserunt aliquip nostrud ea exercitation ex deserunt nulla esse consectetur irure mollit occaecat sunt. Voluptate nulla officia non est sit do pariatur eiusmod aliqua voluptate deserunt magna proident occaecat. Magna deserunt ullamco cupidatat anim enim amet velit laborum consectetur dolore. Nulla magna velit ullamco labore.",
-    tags: ['tags', 'tags', 'tags'],
-    imgUrl: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
-    authorId: "65b9cc7cfdc6e93339efa1b1",
-    comments: ['In sint occaecat non sunt nulla reprehenderit culpa consequat voluptate ad.', 'Labore qui fugiat eiusmod fugiat.'],
-    likes: [{
-      username: 'Yoda'
-    }]
-  },
-  {
-    _id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    content: "Et eu ullamco ex ullamco. Irure est mollit Lorem ipsum nisi cupidatat qui in aute labore. Tempor adipisicing et dolore exercitation est ipsum ullamco exercitation do quis irure aliquip reprehenderit ea. Deserunt aliquip nostrud ea exercitation ex deserunt nulla esse consectetur irure mollit occaecat sunt. Voluptate nulla officia non est sit do pariatur eiusmod aliqua voluptate deserunt magna proident occaecat. Magna deserunt ullamco cupidatat anim enim amet velit laborum consectetur dolore. Nulla magna velit ullamco labore.",
-    tags: ['tags', 'tags', 'tags'],
-    imgUrl: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
-    authorId: "65b9cc7cfdc6e93339efa1b1",
-    comments: ['In sint occaecat non sunt nulla reprehenderit culpa consequat voluptate ad.', 'Labore qui fugiat eiusmod fugiat.'],
-    likes: [{
-      username: 'Yoda'
-    }]
-  },
-  {
-    _id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    content: "Et eu ullamco ex ullamco. Irure est mollit Lorem ipsum nisi cupidatat qui in aute labore. Tempor adipisicing et dolore exercitation est ipsum ullamco exercitation do quis irure aliquip reprehenderit ea. Deserunt aliquip nostrud ea exercitation ex deserunt nulla esse consectetur irure mollit occaecat sunt. Voluptate nulla officia non est sit do pariatur eiusmod aliqua voluptate deserunt magna proident occaecat. Magna deserunt ullamco cupidatat anim enim amet velit laborum consectetur dolore. Nulla magna velit ullamco labore.",
-    tags: ['tags', 'tags', 'tags'],
-    imgUrl: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
-    authorId: "65b9cc7cfdc6e93339efa1b1",
-    comments: ['In sint occaecat non sunt nulla reprehenderit culpa consequat voluptate ad.', 'Labore qui fugiat eiusmod fugiat.'],
-    likes: [{
-      username: 'Yoda'
-    }]
-  },
-];
+const GET_POSTS = gql`
+query GetPosts {
+  getPosts {
+    _id
+    content
+    tags
+    imgUrl
+    authorId
+    comments {
+      content
+      username
+      createdAt
+      updatedAt
+    }
+    likes {
+      username
+      createdAt
+      updatedAt
+    }
+    Author {
+      _id
+      name
+      username
+      email
+    }
+    createdAt
+    updatedAt
+  }
+}
+`
 
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
 export default function HomeScreen() {
+  const authContext = useContext(AuthContext)
+  const { loading, error, data } = useQuery(GET_POSTS)
+  if (loading) return null;
+  if (error) {
+    console.log(error);
+  }
   const navigation = useNavigation()
   return (
     <>
@@ -85,9 +89,9 @@ export default function HomeScreen() {
           <View style={styles.boxTwoChildFive}>
             <Ionic name="notifications-outline" style={styles.icon}></Ionic>
           </View>
-          <View style={styles.boxTwoChildSix}>
+          <TouchableOpacity onPress={() => navigation.navigate("Profile", { userId: data.getPosts[0].Author._id })} style={styles.boxTwoChildSix}>
             <Ionic name="person-outline" style={styles.icon}></Ionic>
-          </View>
+          </TouchableOpacity>
         </View>
         {/* navigation */}
 
@@ -113,8 +117,8 @@ export default function HomeScreen() {
         {/* post */}
         <View style={styles.boxFive}>
           <View style={[styles.boxFiveChildOne, { width: windowWidth }]}>
-            <FlatList data={DATA} keyExtractor={(item) => { item._id }} renderItem={({ item }) => (
-              <View style={{
+            <FlatList data={data.getPosts} keyExtractor={item => item._id} renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => navigation.navigate("Post", { postId: item._id })} style={{
                 width: windowWidth,
               }}>
                 <View style={styles.boxFiveGrandChildOne}>
@@ -122,13 +126,13 @@ export default function HomeScreen() {
                     <Image
                       style={styles.tinyLogo}
                       source={{
-                        uri: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
+                        uri: 'https://w7.pngwing.com/pngs/304/275/png-transparent-user-profile-computer-icons-profile-miscellaneous-logo-monochrome.png',
                       }}
                     />
                   </View>
                   <View style={styles.boxFiveGreatGrandsonTwo}>
                     <Text style={styles.textThree}>
-                      Yoda GreenBoy
+                      {item.Author.username}
                     </Text>
                   </View>
                   <View style={styles.boxFiveGreatGrandsonThree}>
@@ -152,20 +156,20 @@ export default function HomeScreen() {
                   />
                 </View>
                 <View style={styles.boxFiveGrandChildFour}>
-                  <View style={styles.boxFiveGreatGrandsonFive}>
+                  <TouchableOpacity style={styles.boxFiveGreatGrandsonFive}>
                     <Ionic name="heart-outline" style={styles.icon}></Ionic>
-                  </View>
+                  </TouchableOpacity>
                   <View style={styles.boxFiveGreatGrandsonSix}>
-                    <Text>10</Text>
+                    <Text>{item.likes.length}</Text>
                   </View>
                   <View style={styles.boxFiveGreatGrandsonSeven}>
-                    <Text>4 comments</Text>
+                    <Text>{item.comments.length} comments</Text>
                   </View>
                   <View style={styles.boxFiveGreatGrandsonEight}>
-                    <Text>3 shares</Text>
+                    <Text>shares</Text>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}>
             </FlatList>
           </View>
@@ -338,7 +342,7 @@ const styles = StyleSheet.create({
     paddingLeft: 8
   },
   tinyLogo: {
-    width: windowWidth/ 7,
+    width: windowWidth / 7,
     height: windowHeight / 15,
     borderRadius: 100
   },

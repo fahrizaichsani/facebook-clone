@@ -1,10 +1,29 @@
 import { useNavigation } from '@react-navigation/native';
-import React from 'react'
-import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react'
+import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, TouchableOpacity, TextInput } from 'react-native';
 import Ionic from "react-native-vector-icons/Ionicons";
+import { AuthContext } from '../contexts/authContext';
+import { gql, useMutation } from '@apollo/client';
+import * as SecureStore from 'expo-secure-store';
 
+const LOGIN = gql`
+mutation Login($loginUser: loginUser) {
+  login(loginUser: $loginUser) {
+    access_token
+  }
+}
+`
 export default function LoginScreen() {
-const navigation = useNavigation()
+    const authContext = useContext(AuthContext)
+    const [login, { data, loading, error }] = useMutation(LOGIN, {
+        onCompleted: async (data) => {
+            await SecureStore.setItemAsync('access_token', data.login.access_token)
+            authContext.setIsSignedIn(true)
+        }
+    });
+    const [username, setUsername] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const navigation = useNavigation()
 
     return (
         <>
@@ -19,21 +38,27 @@ const navigation = useNavigation()
                         </Text>
                     </View>
                     <View style={styles.boxChildThree}>
-                        <View style={styles.boxGrandChildOne}>
+                        <TextInput placeholder='username' style={styles.boxGrandChildOne} onChangeText={setUsername} value={username}>
 
-                        </View>
+                        </TextInput>
                     </View>
                     <View style={styles.boxChildFour}>
-                        <View style={styles.boxGrandChildTwo}>
+                        <TextInput placeholder='password' secureTextEntry style={styles.boxGrandChildTwo} onChangeText={setPassword} value={password}>
 
-                        </View>
+                        </TextInput>
                     </View>
                     <View style={styles.boxChildSeven}>
-                        <View style={styles.boxGrandChildFive}>
+                        <TouchableOpacity style={styles.boxGrandChildFive} onPress={() => {
+                            login({
+                                variables: {
+                                    loginUser: { username, password }
+                                }
+                            })
+                        }}>
                             <Text style={styles.textTwo}>
                                 LOGIN
                             </Text>
-                        </View>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.boxChildEight}>
                         <Text style={styles.textThree}>
@@ -90,6 +115,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 3,
         borderColor: '#cbcbcd',
+        fontFamily: 'Cochin',
+        padding: 12,
+        fontSize: 30
     },
     boxChildFour: {
         flex: 1,
@@ -103,6 +131,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderWidth: 3,
         borderColor: '#cbcbcd',
+        fontFamily: 'Cochin',
+        padding: 12,
+        fontSize: 30
     },
     boxChildSeven: {
         flex: 1,

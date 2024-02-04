@@ -1,17 +1,66 @@
-import React from 'react'
-import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, FlatList, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react'
+import { SafeAreaView, StyleSheet, Text, View, Image, Dimensions, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Ionic from "react-native-vector-icons/Ionicons";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { AuthContext } from '../contexts/authContext';
+import * as SecureStore from 'expo-secure-store';
+import { gql, useQuery } from '@apollo/client';
+
+const GET_USER_BY_ID = gql`
+query GetUser($id: ID) {
+  getUser(_id: $id) {
+    _id
+    name
+    username
+    email
+    DataFollowing {
+      _id
+      name
+      username
+      email
+    }
+    DataFollower {
+      _id
+      name
+      username
+      email
+    }
+  }
+}
+`
+
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
-export default function ProfileScreen() {
+export default function ProfileScreen({ _id }) {
+    const authContext = useContext(AuthContext)
+    const navigation = useNavigation()
+    const route = useRoute()
+    const { userId } = route.params
+    
+    const { loading, error, data } = useQuery(GET_USER_BY_ID, {
+        variables: { id:  userId }
+    });
+
+
+    if (loading) return <ActivityIndicator size={'large'} color={'black'} />;
+    if (error) return <Text>Error : {error.message}</Text>;
     return (
         <>
             <SafeAreaView style={styles.container}>
                 <View style={styles.boxOne}>
-                    <Text style={styles.textOne}>
-                        Profile
-                    </Text>
+                    <View style={styles.boxOneChildOne}>
+                        <TouchableOpacity onPress={() => navigation.navigate("Home")} >
+                            <Ionic name="arrow-back-outline" style={styles.icon}></Ionic>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.boxOneChildTwo}>
+                        <Text style={styles.textOne}>
+                            Profile
+                        </Text>
+                    </View>
+                    <View style={styles.boxOneChildThree}>
+
+                    </View>
                 </View>
                 <View style={styles.boxTwo}>
                     <Image style={styles.image}
@@ -23,7 +72,7 @@ export default function ProfileScreen() {
                         <Image
                             style={styles.tinyLogo}
                             source={{
-                                uri: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
+                                uri: 'https://w7.pngwing.com/pngs/304/275/png-transparent-user-profile-computer-icons-profile-miscellaneous-logo-monochrome.png',
                             }}
                         />
                     </View>
@@ -31,13 +80,13 @@ export default function ProfileScreen() {
                 <View style={styles.boxThree}>
                     <View style={styles.boxThreeChildOne}>
                         <Text style={styles.textTwo}>
-                            Yoda Green Boy
+                            {data.getUser.username}
                         </Text>
                         <Text style={styles.textThree}>
-                            @yoda08 - yoda@mail.com
+                            {data.getUser.name} - {data.getUser.email}
                         </Text>
                         <Text style={styles.textFour}>
-                            Couruscant
+                           
                         </Text>
                     </View>
                     <View style={styles.boxThreeChildTwo}>
@@ -57,9 +106,18 @@ export default function ProfileScreen() {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.boxFive}>
-
+                    <TouchableOpacity style={styles.boxFiveChildOne}
+                        onPress={async () => {
+                            await SecureStore.deleteItemAsync('access_token')
+                            authContext.setIsSignedIn(false)
+                        }
+                        }>
+                        <Text style={styles.textSix}>
+                            Logout
+                        </Text>
+                    </TouchableOpacity>
                 </View>
-            </SafeAreaView>
+            </SafeAreaView >
         </>
     )
 }
@@ -73,7 +131,24 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'row',
+        paddingLeft: 8,
+        paddingRight: 8
+    },
+    boxOneChildOne: {
+        flex: 1,
+        backgroundColor: '#fff',
+        justifyContent: 'flex-start'
+    },
+    boxOneChildTwo: {
+        flex: 1,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
         alignItems: 'center'
+    },
+    boxOneChildThree: {
+        flex: 1
     },
     textOne: {
         fontFamily: 'Cochin',
@@ -177,7 +252,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#cbcbcd',
         margin: 10
-    }, 
+    },
     textfive: {
         color: '#000',
         fontFamily: 'Cochin',
@@ -186,6 +261,26 @@ const styles = StyleSheet.create({
     },
     boxFive: {
         flex: 2,
-        backgroundColor: '#fff'
+        backgroundColor: '#fff',
+        justifyContent: 'center'
     },
+    boxFiveChildOne: {
+        flex: 1,
+        backgroundColor: '#B23B3B',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 15,
+        borderWidth: 1,
+        borderColor: '#cbcbcd',
+        marginRight: 150,
+        marginLeft: 150,
+        marginTop: 30,
+        marginBottom: 30
+    },
+    textSix: {
+        color: '#fff',
+        fontFamily: 'Cochin',
+        fontSize: 20,
+        fontWeight: 'bold'
+    }
 });

@@ -1,11 +1,50 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { SafeAreaView, StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native';
 import Ionic from "react-native-vector-icons/Ionicons";
+import { AuthContext } from '../contexts/authContext';
 import { useNavigation } from '@react-navigation/native';
+import { gql, useMutation } from '@apollo/client';
+
+
+const ADD_POST = gql`
+mutation AddNewPost($addPost: addPost) {
+  addNewPost(addPost: $addPost) {
+    _id
+    content
+    tags
+    imgUrl
+    authorId
+    comments {
+      content
+      username
+      createdAt
+      updatedAt
+    }
+    likes {
+      username
+      createdAt
+      updatedAt
+    }
+    createdAt
+    updatedAt
+  }
+}
+`
 
 export default function AddPostScreen() {
-    const [text, onChangeText] = React.useState('');
     const navigation = useNavigation()
+    const authContext = useContext(AuthContext)
+    const [createPost, { data, loading, error }] = useMutation(ADD_POST, {
+        refetchQueries: [
+            "GetPosts"
+        ],
+        onCompleted: async (data) => {
+            navigation.navigate("Home")
+        }
+    });
+    const [content, setContent] = React.useState('');
+    const [imgUrl, setImgUrl] = React.useState('');
+    const [tags, setTags] = React.useState('');
 
     return (
         <>
@@ -20,40 +59,53 @@ export default function AddPostScreen() {
                         </Text>
                     </View>
                     <View style={styles.boxOneChildThree}>
-                        <TouchableOpacity style={styles.boxOneGrandChildOne} >
+                        <TouchableOpacity style={styles.boxOneGrandChildOne} onPress={() => {
+                            createPost({
+                                variables: {
+                                    addPost: { content, imgUrl, tags }
+                                }
+                            })
+                        }}>
                             <Text style={styles.textTwo}>
                                 POST
                             </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-                <View style={styles.boxTwo}>
-                    <View style={styles.boxTwoChildOne}>
-                        <Image
-                            style={styles.tinyLogo}
-                            source={{
-                                uri: 'https://lumiere-a.akamaihd.net/v1/images/image_3e7881c8.jpeg?region=131,0,1338,753',
-                            }}
-                        />
-                    </View>
-                    <View style={styles.boxTwoChildTwo}>
-                        <Text style={styles.textThree}>
-                            Yoda GreenBoy
-                        </Text>
-                    </View>
-                    <TouchableOpacity style={styles.boxTwoChildThree}>
-                        <Text style={styles.textfive}>
-                            Add Image
-                        </Text>
-                    </TouchableOpacity>
-                </View>
                 <View style={styles.boxThree}>
-                    <TextInput
-                        style={styles.inputOne}
-                        onChangeText={onChangeText}
-                        value={text}
-                        placeholder="What's on your mind?"
-                    />
+                    <View style={styles.boxThreeChildTwo}>
+
+                    </View>
+                    <View style={styles.boxThreeChildThree}>
+                        <Text style={styles.textFour}>
+                            Content
+                        </Text>
+                        <TextInput style={styles.inputOne}
+                            onChangeText={setContent} 
+                            value={content}
+                            placeholder="What's on your mind?">
+                        </TextInput>
+                        <Text style={styles.textFour}>
+                            Image Link
+                        </Text>
+                        <TextInput style={styles.inputTwo}
+                            onChangeText={setImgUrl} 
+                            value={imgUrl}
+                            placeholder="Image Url"
+                            >            
+                        </TextInput>
+                        <Text style={styles.textFour}>
+                            Tags
+                        </Text>
+                        <TextInput style={styles.inputThree}
+                            onChangeText={setTags} 
+                            value={tags}
+                            placeholder="Tags">
+                        </TextInput>
+                    </View>
+                    <View style={styles.boxThreeChildOne}>
+
+                    </View>
                 </View>
             </SafeAreaView>
         </>
@@ -119,7 +171,8 @@ const styles = StyleSheet.create({
     boxTwo: {
         flex: 1,
         backgroundColor: '#ffffff',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginTop: 20
     },
     boxTwoChildOne: {
         flex: 2,
@@ -146,17 +199,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold'
     },
     boxTwoChildThree: {
-        flex: 3,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#f0f7ff',
-        borderRadius: 15,
-        borderWidth: 1,
-        borderColor: '#cbcbcd',
-        marginTop: 20,
-        marginBottom: 20,
-        marginRight: 8
+        flex: 3
     },
     textfive: {
         color: '#000'
@@ -164,10 +207,41 @@ const styles = StyleSheet.create({
     boxThree: {
         flex: 8,
         backgroundColor: '#fff',
-        padding: 12
+        padding: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
+        borderWidth: 3,
+        borderColor: '#ececec',
+        margin: 35
+    },
+    boxThreeChildTwo: {
+        flex: 2
+    },
+    boxThreeChildThree: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: 30
+    },
+    textFour: {
+        fontFamily: 'Cochin',
+        fontSize: 25,
+        fontWeight: 'bold'
     },
     inputOne: {
         fontFamily: 'Cochin',
-        fontSize: 35
+        fontSize: 30
+    },
+    inputTwo: {
+        fontFamily: 'Cochin',
+        fontSize: 30
+    },
+    inputThree: {
+        fontFamily: 'Cochin',
+        fontSize: 30
+    },
+    boxThreeChildOne: {
+        flex: 5,
     }
 });

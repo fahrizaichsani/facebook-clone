@@ -24,7 +24,7 @@ class Post {
             }
         }, {
             $set: { Author: { $first: '$Author' } }
-        },{
+        }, {
             $project: {
                 "Author.password": 0
             }
@@ -95,6 +95,8 @@ class Post {
                 foreignField: '_id',
                 as: 'Author'
             }
+        }, {
+            $set: { Author: { $first: '$Author' } }
         }, {
             $project: {
                 "Author.password": 0
