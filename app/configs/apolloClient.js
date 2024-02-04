@@ -4,8 +4,9 @@ import * as SecureStore from 'expo-secure-store';
 
 
 const httpLink = createHttpLink({
-    uri: 'http://localhost:3001/',
+    uri: 'http://facebook-clone.casablancass.online',
 });
+
 
 const authLink = setContext( async (_, { headers }) => {
     // get the authentication token from local storage if it exists
